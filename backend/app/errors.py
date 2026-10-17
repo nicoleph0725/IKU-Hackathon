@@ -71,3 +71,8 @@ def register_error_handlers(app):
     @jwt.expired_token_loader
     def expired_token(jwt_header, jwt_payload):
         return error_response(401, "token_expired", "Access token has expired, please log in again")
+
+
+def not_implemented(what: str = "This endpoint"):
+    """Placeholder for endpoints the team hasn't built yet. Remove once implemented."""
+    raise APIError(501, "not_implemented", f"{what} is not implemented yet")

@@ -57,6 +57,7 @@ export function formatErrorDetails(details) {
 }
 
 // --- Endpoint helpers -------------------------------------------------------
+// TODO: add a helper here for every new endpoint you build.
 export const api = {
   // auth
   register: (data) => request('POST', '/auth/register', { body: data }),
@@ -66,7 +67,7 @@ export const api = {
 
   // cafes
   searchCafes: (params) => request('GET', '/cafes', { query: params }),
-  getCafe: (id, coords) => request('GET', `/cafes/${id}`, { query: coords }),
+  getCafe: (id) => request('GET', `/cafes/${id}`),
   reportBusyness: (id, level) => request('POST', `/cafes/${id}/busyness`, { body: { level } }),
 
   // reviews
@@ -77,10 +78,9 @@ export const api = {
 
   // friends
   listFriends: (params) => request('GET', '/friends', { query: params }),
-  listFriendRequests: (direction = 'incoming') => request('GET', '/friends/requests', { query: { direction } }),
+  listFriendRequests: () => request('GET', '/friends/requests'),
   sendFriendRequest: (username) => request('POST', '/friends/requests', { body: { username } }),
   acceptFriendRequest: (id) => request('POST', `/friends/requests/${id}/accept`),
-  declineFriendRequest: (id) => request('DELETE', `/friends/requests/${id}`),
   removeFriend: (userId) => request('DELETE', `/friends/${userId}`),
   friendsCheckins: () => request('GET', '/friends/checkins'),
 
@@ -88,5 +88,4 @@ export const api = {
   checkIn: (cafeId, durationMinutes) =>
     request('POST', '/checkins', { body: { cafe_id: cafeId, duration_minutes: durationMinutes } }),
   checkOut: () => request('POST', '/checkins/checkout'),
-  myCheckin: () => request('GET', '/checkins/me'),
 };

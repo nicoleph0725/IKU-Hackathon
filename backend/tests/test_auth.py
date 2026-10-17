@@ -47,9 +47,8 @@ def test_me_requires_token(client, make_user):
     assert res.get_json()["user"]["username"] == "sam"
 
 
-def test_settings_toggle_share_location(client, make_user):
-    _, headers = make_user()
-    res = client.patch("/api/users/me/settings", json={"share_location": True}, headers=headers)
-    assert res.status_code == 200
-    assert res.get_json()["user"]["share_location"] is True
-    assert client.patch("/api/users/me/settings", json={}, headers=headers).status_code == 422
+def test_unbuilt_endpoints_return_501(client):
+    # Remove this test once the cafe endpoints are implemented.
+    res = client.get("/api/cafes")
+    assert res.status_code == 501
+    assert res.get_json()["error"]["code"] == "not_implemented"

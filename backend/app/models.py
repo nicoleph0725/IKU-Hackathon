@@ -1,10 +1,10 @@
 """Database models.
 
-Notes on the TimescaleDB hypertables (checkins, busyness_reports):
-- They are partitioned by their `time` column (see the initial migration).
-- TimescaleDB requires every primary key / unique constraint on a hypertable to include
-  the partitioning column, so these tables use composite primary keys that include `time`
-  instead of a surrogate `id`.
+checkins and busyness_reports are TimescaleDB hypertables partitioned on `time` (see the
+initial migration). TimescaleDB requires primary keys on hypertables to include `time`,
+so they use composite keys instead of an `id`.
+
+After changing a model: `flask db migrate -m "what changed"` then `flask db upgrade`.
 """
 from datetime import datetime, timezone
 
@@ -31,9 +31,7 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
-    # Opt-in: user must enable this before they can check in / be seen by friends.
-    share_location = db.Column(db.Boolean, nullable=False, server_default="false", default=False)
-    # TODO: avatar_url, university, display_name
+    share_location = db.Column(db.Boolean, nullable=False, server_default="false", default=False)  # opt-in
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -70,34 +68,20 @@ class Cafe(db.Model):
     address = db.Column(db.String(255), nullable=False)
     lat = db.Column(db.Float, nullable=False)
     lng = db.Column(db.Float, nullable=False)
-    price_level = db.Column(db.SmallInteger, nullable=False)          # 1 = £, 2 = ££, 3 = £££
+    price_level = db.Column(db.SmallInteger, nullable=False)              # 1-3
     seating_capacity = db.Column(db.Integer, nullable=False)
     has_wifi = db.Column(db.Boolean, nullable=False, default=False)
-    wifi_quality = db.Column(db.SmallInteger, nullable=False, default=0)  # 0 = none, 5 = excellent
-    # e.g. {"mon": [["08:00", "18:00"]], "sun": []}
-    opening_hours = db.Column(JSONB, nullable=True)
+    wifi_quality = db.Column(db.SmallInteger, nullable=False, default=0)  # 0 = none .. 5 = excellent
+    opening_hours = db.Column(JSONB, nullable=True)  # e.g. {"mon": [["08:00", "18:00"]], "sun": []}
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
-    # TODO: power_outlets, noise_level, image_url, website. An endpoint for users to add cafes.
 
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "address": self.address,
-            "lat": self.lat,
-            "lng": self.lng,
-            "price_level": self.price_level,
-            "seating_capacity": self.seating_capacity,
-            "has_wifi": self.has_wifi,
-            "wifi_quality": self.wifi_quality,
-            "opening_hours": self.opening_hours,
-        }
+    # TODO: add a to_dict() for API responses (see User.to_private_dict for the pattern).
 
 
 class Review(db.Model):
     __tablename__ = "reviews"
     __table_args__ = (
-        UniqueConstraint("user_id", "cafe_id", name="uq_reviews_user_cafe"),
+        UniqueConstraint("user_id", "cafe_id", name="uq_reviews_user_cafe"),  # one review per user per cafe
         CheckConstraint("rating BETWEEN 1 AND 5", name="ck_reviews_rating"),
         CheckConstraint("space_rating BETWEEN 1 AND 5", name="ck_reviews_space"),
         CheckConstraint("quietness_rating BETWEEN 1 AND 5", name="ck_reviews_quietness"),
@@ -110,8 +94,7 @@ class Review(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     cafe_id = db.Column(db.Integer, db.ForeignKey("cafes.id", ondelete="CASCADE"), nullable=False)
     rating = db.Column(db.SmallInteger, nullable=False)
-    # Attribute ratings are optional (NULL = not rated). For cost, 5 = great value.
-    space_rating = db.Column(db.SmallInteger)
+    space_rating = db.Column(db.SmallInteger)      # attribute ratings are optional
     quietness_rating = db.Column(db.SmallInteger)
     wifi_rating = db.Column(db.SmallInteger)
     cost_rating = db.Column(db.SmallInteger)
@@ -119,28 +102,15 @@ class Review(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), nullable=True, onupdate=utcnow)
 
-    user = db.relationship("User", lazy="joined")
+    user = db.relationship("User")
 
-    def to_dict(self) -> dict:
-        return {
-            "id": self.id,
-            "cafe_id": self.cafe_id,
-            "user": self.user.to_public_dict() if self.user else None,
-            "rating": self.rating,
-            "space_rating": self.space_rating,
-            "quietness_rating": self.quietness_rating,
-            "wifi_rating": self.wifi_rating,
-            "cost_rating": self.cost_rating,
-            "body": self.body,
-            "created_at": iso(self.created_at),
-            "updated_at": iso(self.updated_at),
-        }
+    # TODO: add a to_dict() for API responses.
 
 
 class Friendship(db.Model):
-    """A friend request. status 'pending' -> 'accepted'. Declining deletes the row.
+    """A friend request: status 'pending' -> 'accepted'. Declining can just delete the row.
 
-    The unique index on (LEAST, GREATEST) means A->B and B->A can never both exist.
+    The unique (LEAST, GREATEST) index stops A->B and B->A from both existing.
     """
 
     __tablename__ = "friendships"
@@ -164,23 +134,18 @@ class Friendship(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
     accepted_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
-    requester = db.relationship("User", foreign_keys=[requester_id], lazy="joined")
-    addressee = db.relationship("User", foreign_keys=[addressee_id], lazy="joined")
-
-    def other(self, user_id: int) -> "User":
-        return self.addressee if self.requester_id == user_id else self.requester
+    requester = db.relationship("User", foreign_keys=[requester_id])
+    addressee = db.relationship("User", foreign_keys=[addressee_id])
 
 
 class CheckIn(db.Model):
-    """Hypertable. A user's (opt-in) presence at a cafe. Kept as history after expiry/checkout.
+    """Hypertable. Opt-in presence at a cafe (not GPS).
 
-    Active = checked_out_at IS NULL AND expires_at > now().
+    Active = checked_out_at IS NULL AND expires_at > now(). Old rows are kept as history.
     """
 
     __tablename__ = "checkins"
-    __table_args__ = (
-        Index("ix_checkins_cafe_time", "cafe_id", "time"),
-    )
+    __table_args__ = (Index("ix_checkins_cafe_time", "cafe_id", "time"),)
 
     time = db.Column(db.DateTime(timezone=True), primary_key=True, default=utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
@@ -188,18 +153,8 @@ class CheckIn(db.Model):
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
     checked_out_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
-    cafe = db.relationship("Cafe", lazy="joined")
-    user = db.relationship("User", lazy="joined")
-
-    def to_dict(self) -> dict:
-        return {
-            "user": self.user.to_public_dict() if self.user else None,
-            "cafe": {"id": self.cafe.id, "name": self.cafe.name, "lat": self.cafe.lat, "lng": self.cafe.lng}
-            if self.cafe else None,
-            "checked_in_at": iso(self.time),
-            "expires_at": iso(self.expires_at),
-            "checked_out_at": iso(self.checked_out_at),
-        }
+    cafe = db.relationship("Cafe")
+    user = db.relationship("User")
 
 
 class BusynessReport(db.Model):
