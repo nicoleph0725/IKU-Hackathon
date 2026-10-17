@@ -16,24 +16,27 @@ export const api = {
 };
 
 const inputClass =
-  'w-full rounded-lg border border-amber-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-600';
+  'field w-full rounded-xl px-3.5 py-2.5 text-sm';
 
 export function openAuthModal(mode, onSuccess) {
   const isSignup = mode === 'signup';
   const overlay = document.createElement('div');
-  overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4';
+  overlay.className = 'fixed inset-0 z-[2000] flex items-center justify-center bg-stone-900/35 p-4 backdrop-blur-xs';
   overlay.innerHTML = `
-    <form class="w-full max-w-sm space-y-3 rounded-xl bg-white p-6 shadow-xl">
-      <h2 class="text-xl font-bold text-brand">${isSignup ? 'Create your account' : 'Welcome back'}</h2>
+    <form class="surface w-full max-w-sm space-y-3.5 rounded-3xl p-6">
+      <div>
+        <h2 class="text-lg font-bold tracking-tight text-brand">${isSignup ? 'Create your account' : 'Welcome back'}</h2>
+        <p class="mt-0.5 text-xs text-stone-500">${isSignup ? 'Save your favourite study spots and preferences.' : 'Sign in to access your saved study spots.'}</p>
+      </div>
       ${isSignup ? `<input name="username" placeholder="Username" required class="${inputClass}" />` : ''}
-      <input name="email" type="email" placeholder="Email" required autocomplete="email" class="${inputClass}" />
+      <input name="email" type="email" placeholder="Email address" required autocomplete="email" class="${inputClass}" />
       <input name="password" type="password" placeholder="Password${isSignup ? ' (8+ characters)' : ''}"
         required minlength="${isSignup ? 8 : 1}"
         autocomplete="${isSignup ? 'new-password' : 'current-password'}" class="${inputClass}" />
-      <p class="error hidden text-sm text-red-600"></p>
-      <div class="flex justify-end gap-2 pt-1">
-        <button type="button" class="cancel rounded-lg px-3 py-2 text-sm text-amber-900 hover:bg-amber-100">Cancel</button>
-        <button type="submit" class="rounded-lg bg-amber-900 px-4 py-2 text-sm font-medium text-white hover:bg-amber-800">
+      <p class="error hidden rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-600"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="cancel btn-soft cursor-pointer rounded-xl px-4 py-2 text-xs font-medium">Cancel</button>
+        <button type="submit" class="btn-matcha cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold">
           ${isSignup ? 'Sign up' : 'Sign in'}
         </button>
       </div>

@@ -1,2 +1,123 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Navbar brand colors remain unchanged */
+  --color-brand: #293D32;
+  --color-brand-dark: #2F4A39;
+  --color-brand-light: #DCE6DF;
+  --color-accent: #E9A23B;
+  --color-cream: #FAF6EF;
+
+  /* Soft, fresh pastel sage & mint greens (no yellow/olive undertones) */
+  --color-matcha-50: #F3FAF6;
+  --color-matcha-100: #E4F5EC;
+  --color-matcha-200: #C8EBD9;
+  --color-matcha-300: #A3DEC0;
+  --color-matcha-400: #7AD0A6;
+  --color-matcha-500: #58B98B;
+  --color-matcha-600: #429B70;
+  --color-matcha-700: #337B59;
+  --color-matcha-800: #296147;
+  --color-matcha-900: #214E39;
+}
+
+/* ---------------------------------------------------------------------------
+   Clean, modern floating UI primitives
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* Crisp, modern frosted glass surface without grain or heavy gradients */
+  .surface {
+    background-color: rgb(255 255 255 / 0.92);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    border: 1px solid rgb(226 232 240 / 0.85);
+    box-shadow:
+      0 10px 30px -5px rgb(15 23 42 / 0.08),
+      0 4px 12px -2px rgb(15 23 42 / 0.04);
+  }
+
+  /* Primary button: soft pastel green fill with dark forest text for a fresh modern feel */
+  .btn-matcha {
+    color: var(--color-brand);
+    background-color: var(--color-matcha-300);
+    border: 1px solid var(--color-matcha-400);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn-matcha:hover {
+    background-color: var(--color-matcha-400);
+    border-color: var(--color-matcha-500);
+    transform: translateY(-0.5px);
+    box-shadow: 0 4px 12px rgb(88 185 139 / 0.25);
+  }
+  .btn-matcha:active {
+    transform: translateY(0);
+  }
+
+  /* Secondary button: minimal clean ghost/outline button */
+  .btn-soft {
+    color: #57534e;
+    background-color: rgb(255 255 255 / 0.8);
+    border: 1px solid #e7e5e4;
+    transition: all 0.18s ease;
+  }
+  .btn-soft:hover {
+    color: #1c1917;
+    background-color: #f5f5f4;
+    border-color: #d6d3d1;
+  }
+  .btn-soft:active {
+    background-color: #e7e5e4;
+  }
+
+  /* Clean, modern flat input fields */
+  .field {
+    background-color: #f8faf9;
+    border: 1px solid #e2e8f0;
+    color: #1c1917;
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .field::placeholder {
+    color: #94a3b8;
+  }
+  .field:hover {
+    border-color: var(--color-matcha-300);
+  }
+  .field:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: var(--color-matcha-400);
+    box-shadow: 0 0 0 3px rgb(163 222 192 / 0.35);
+  }
+
+  /* Segmented control pills for preferences */
+  .chip {
+    color: #64748b;
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .chip:hover {
+    color: var(--color-brand);
+  }
+  .peer:checked ~ .chip {
+    color: var(--color-brand);
+    background-color: var(--color-matcha-200);
+    border-color: var(--color-matcha-300);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+  }
+  .peer:focus-visible ~ .chip {
+    outline: 2px solid var(--color-matcha-400);
+    outline-offset: 1px;
+  }
+
+  /* Clean flat pastel badge */
+  .badge {
+    color: var(--color-brand);
+    background-color: var(--color-matcha-200);
+    border: 1px solid var(--color-matcha-300);
+  }
+}

@@ -1,6 +1,6 @@
 import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 
-// King's College London, Strand campus (keep in sync with SEARCH_CENTER in backend/app.py).
+// King's College London, Strand campus: the default view (keep in sync with SEARCH_CENTER in backend/places.py).
 const KCL_STRAND = { lat: 51.5115, lng: -0.1160 };
 
 function showError(el, message) {

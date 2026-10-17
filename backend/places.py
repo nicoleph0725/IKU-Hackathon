@@ -16,7 +16,7 @@ MAP_KEY = os.getenv("MAP_KEY", "").strip()
 # Docs: https://developers.google.com/maps/documentation/places/web-service/nearby-search
 PLACES_NEARBY_URL = "https://places.googleapis.com/v1/places:searchNearby"
 
-# King's College London, Strand campus. Change these to search somewhere else.
+# Default search centre when the user hasn't searched for a location: King's College London, Strand campus.
 SEARCH_CENTER = {"latitude": 51.5115, "longitude": -0.1160}
 SEARCH_RADIUS_METRES = 1000
 
@@ -46,22 +46,25 @@ PRICE_LEVELS = {
     "PRICE_LEVEL_VERY_EXPENSIVE": 4,
 }
 
-# Every Places request costs money, so reuse the last result for a few minutes.
+# Every Places request costs money, so reuse results for a few minutes.
 CACHE_SECONDS = 10 * 60
-_places_cache = {"time": 0.0, "cafes": None}
+_places_cache = {}  # (lat, lng) rounded -> {"time": ..., "cafes": [...]}
 
 
 #################################
 # Helper functions
 #################################
 
-def search_get_cafes():
-    """Up to 20 cafes around SEARCH_CENTER from Google Places, as a list of dicts.
+def search_get_cafes(lat=SEARCH_CENTER["latitude"], lng=SEARCH_CENTER["longitude"]):
+    """Up to 20 cafes around (lat, lng) from Google Places, as a list of dicts. Defaults to KCL Strand.
 
     Raises RuntimeError if Google returns an error.
     """
-    if _places_cache["cafes"] is not None and time.time() - _places_cache["time"] < CACHE_SECONDS:
-        return _places_cache["cafes"]
+    # Rounded to ~10 m so searching the same place twice reuses the cached result.
+    cache_key = (round(lat, 4), round(lng, 4))
+    cached = _places_cache.get(cache_key)
+    if cached and time.time() - cached["time"] < CACHE_SECONDS:
+        return cached["cafes"]
 
     resp = requests.post(
         PLACES_NEARBY_URL,
@@ -70,7 +73,8 @@ def search_get_cafes():
             # primary type = what the place mainly is (filters out restaurants/shops that also sell coffee)
             "includedPrimaryTypes": ["cafe", "coffee_shop"],
             "maxResultCount": 20,  # Google's maximum for nearby search
-            "locationRestriction": {"circle": {"center": SEARCH_CENTER, "radius": SEARCH_RADIUS_METRES}},
+            "locationRestriction": {"circle": {"center": {"latitude": lat, "longitude": lng},
+                                               "radius": SEARCH_RADIUS_METRES}},
         },
         timeout=15,
     )
@@ -101,7 +105,11 @@ def search_get_cafes():
             # TODO: busyness. The Places API does not provide live busyness ("popular times").
         })
 
-    _places_cache.update(time=time.time(), cafes=cafes)
+    # Forget expired searches so the cache doesn't grow forever.
+    now = time.time()
+    for key in [k for k, v in _places_cache.items() if now - v["time"] >= CACHE_SECONDS]:
+        del _places_cache[key]
+    _places_cache[cache_key] = {"time": now, "cafes": cafes}
     return cafes
 
 
