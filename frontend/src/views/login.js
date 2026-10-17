@@ -18,7 +18,6 @@ export function render(el) {
           <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
         </div>
         <button class="btn-primary w-full" type="submit">Log in</button>
-        <p class="text-center text-xs text-stone-500">Demo account: <code>alice</code> / <code>password123</code></p>
       </form>
       <p class="mt-4 text-center text-sm">No account? <a class="font-medium text-amber-800 underline" href="#/register">Sign up</a></p>
     </div>`;

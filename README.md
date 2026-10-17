@@ -22,7 +22,6 @@ backend/
     blueprints/        auth ✅ | users, cafes, reviews, friends, checkins (TODO)
   migrations/          database migrations (already creates every table)
   tests/               pytest (auth only so far)
-  seed.py              3 cafes + 2 users
 frontend/src/
   main.js, router.js   routes -> views
   api.js               fetch wrapper (adds JWT, handles errors)
@@ -52,11 +51,10 @@ Activate the venv (`source .venv/bin/activate`) in every new terminal before run
   To share one database with the team, one person does step 3 and sends the string to the others privately.
 - **Docker:** `docker compose up -d` from the repo root. The defaults in `.env.example` already match it.
 
-### 3. Create tables and demo data (once per database)
+### 3. Create the tables (once per database)
 
 ```bash
 flask db upgrade
-python seed.py        # wipes data! logins: alice / password123, bob / password123
 ```
 
 ### 4. Run
