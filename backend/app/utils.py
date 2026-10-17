@@ -1,23 +1,12 @@
-"""Shared helpers: current user, 404 lookups, pagination."""
+"""Shared helpers: 404 lookups, pagination.
+
+For the logged-in user, use `from flask_login import current_user` in your views.
+"""
 from flask import current_app, request
-from flask_jwt_extended import get_jwt_identity
 from sqlalchemy import func, select
 
 from .errors import APIError
 from .extensions import db
-from .models import User
-
-
-def current_user_id() -> int:
-    """User id from the JWT. Only call inside @jwt_required() views."""
-    return int(get_jwt_identity())
-
-
-def current_user() -> User:
-    user = db.session.get(User, current_user_id())
-    if user is None:
-        raise APIError(401, "unauthorized", "User no longer exists")
-    return user
 
 
 def get_or_404(model, ident, name: str | None = None):

@@ -10,9 +10,10 @@ from datetime import datetime, timezone
 
 from sqlalchemy import CheckConstraint, Index, UniqueConstraint, func, text
 from sqlalchemy.dialects.postgresql import JSONB
+from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .extensions import db
+from .extensions import db, login_manager
 
 
 def utcnow() -> datetime:
@@ -23,7 +24,7 @@ def iso(dt: datetime | None) -> str | None:
     return dt.isoformat() if dt else None
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):  # UserMixin adds what Flask-Login needs (is_authenticated, get_id...)
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +53,12 @@ class User(db.Model):
             "share_location": self.share_location,
             "created_at": iso(self.created_at),
         }
+
+
+@login_manager.user_loader
+def load_user(user_id: str):
+    """Flask-Login calls this on each request to turn the id stored in the session into a User."""
+    return db.session.get(User, int(user_id))
 
 
 class Cafe(db.Model):

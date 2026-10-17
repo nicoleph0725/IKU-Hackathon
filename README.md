@@ -7,7 +7,7 @@ This is a **skeleton**. The plumbing works (app setup, database, migrations, log
 wrapper, map). The features are stubs marked with `TODO` comments. Unbuilt endpoints return
 `501 Not Implemented`, and unbuilt pages show yellow TODO boxes. Search the code for `TODO` to see what's left.
 
-**Stack:** Flask + SQLAlchemy + Alembic + JWT · PostgreSQL/TimescaleDB (Tiger Cloud or Docker) ·
+**Stack:** Flask + SQLAlchemy + Alembic + Flask-Login (session cookies) · PostgreSQL/TimescaleDB (Tiger Cloud or Docker) ·
 Vanilla JS + Tailwind + Vite + Leaflet
 
 ```
@@ -24,7 +24,7 @@ backend/
   tests/               pytest (auth only so far)
 frontend/src/
   main.js, router.js   routes -> views
-  api.js               fetch wrapper (adds JWT, handles errors)
+  api.js               fetch wrapper (sends session cookie, handles errors)
   views/               login ✅ register ✅ | search, cafeDetail, writeReview, friends, settings (TODO)
   components/          navbar, map, toast, ui helpers
 ```
@@ -77,6 +77,7 @@ pytest                # in backend/. Uses TEST_DATABASE_URL, which gets wiped. N
 |--------|------|--------|
 | POST | `/auth/register` | ✅ |
 | POST | `/auth/login` | ✅ |
+| POST | `/auth/logout` | ✅ |
 | GET | `/auth/me` | ✅ |
 | PATCH | `/users/me/settings` | TODO |
 | GET | `/cafes?lat=&lng=&max_distance_km=&max_price=&min_wifi=&min_seats=&max_busyness=&sort=` | TODO |

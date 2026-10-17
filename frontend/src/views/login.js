@@ -1,5 +1,5 @@
 import { api } from '../api.js';
-import { setSession } from '../auth.js';
+import { setUser } from '../auth.js';
 import { navigate, queryParams } from '../router.js';
 import { toastError } from '../components/toast.js';
 
@@ -29,8 +29,8 @@ export function render(el) {
     button.disabled = true;
     try {
       const { login, password } = Object.fromEntries(new FormData(form));
-      const { access_token, user } = await api.login(login, password);
-      setSession(access_token, user);
+      const { user } = await api.login(login, password); // server sets the session cookie
+      setUser(user);
       navigate(queryParams().get('next') ?? '/');
     } catch (err) {
       toastError(err);

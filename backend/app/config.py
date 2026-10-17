@@ -22,8 +22,12 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}  # cloud DBs drop idle connections
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-only-insecure-secret")
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_HOURS", "12")))
+    # Signs the session cookie. Must be secret and the same across restarts.
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-insecure-secret")
+    SESSION_COOKIE_HTTPONLY = True        # JavaScript can't read the cookie
+    SESSION_COOKIE_SAMESITE = "Lax"       # cookie isn't sent on cross-site POSTs (basic CSRF protection)
+    REMEMBER_COOKIE_DURATION = timedelta(days=14)
+    # TODO (production): SESSION_COOKIE_SECURE = True and REMEMBER_COOKIE_SECURE = True (HTTPS only)
 
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if o.strip()]
 
@@ -37,4 +41,4 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = normalize_db_url(
         os.getenv("TEST_DATABASE_URL", "postgresql://studycafe:studycafe@localhost:5432/studycafe_test")
     )
-    JWT_SECRET_KEY = "test-secret-key-that-is-long-enough-for-hs256"
+    SECRET_KEY = "test-secret-key"

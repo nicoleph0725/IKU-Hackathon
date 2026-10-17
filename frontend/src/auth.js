@@ -1,12 +1,9 @@
-// Session storage for the JWT + current user.
-// TODO: localStorage is readable by any script on the page (XSS risk). For production,
-// move to an httpOnly cookie (Flask-JWT-Extended supports JWT_TOKEN_LOCATION=["cookies"]).
-const TOKEN_KEY = 'studyspot.token';
+// Who is logged in, from the frontend's point of view.
+//
+// The real login is the server's session cookie, which the browser sends automatically.
+// We only keep a copy of the user object here so the navbar/pages can show the username
+// and know whether to show "Log in" or "Log out" without asking the server every time.
 const USER_KEY = 'studyspot.user';
-
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
 
 export function getUser() {
   try {
@@ -17,12 +14,7 @@ export function getUser() {
 }
 
 export function isLoggedIn() {
-  return Boolean(getToken());
-}
-
-export function setSession(token, user) {
-  localStorage.setItem(TOKEN_KEY, token);
-  setUser(user);
+  return Boolean(getUser());
 }
 
 export function setUser(user) {
@@ -30,8 +22,7 @@ export function setUser(user) {
   window.dispatchEvent(new CustomEvent('auth-changed'));
 }
 
-export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
+export function clearUser() {
   localStorage.removeItem(USER_KEY);
   window.dispatchEvent(new CustomEvent('auth-changed'));
 }

@@ -6,7 +6,7 @@ from sqlalchemy import text
 
 from .config import Config
 from .errors import register_error_handlers
-from .extensions import cors, db, jwt, migrate
+from .extensions import cors, db, login_manager, migrate
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:
@@ -20,8 +20,9 @@ def create_app(config_class: type[Config] = Config) -> Flask:
 
     db.init_app(app)
     migrate.init_app(app, db)
-    jwt.init_app(app)
-    cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}})
+    login_manager.init_app(app)
+    # supports_credentials lets the browser send the session cookie on cross-origin requests.
+    cors.init_app(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}}, supports_credentials=True)
 
     from . import models  # noqa: F401  (register models with SQLAlchemy / Alembic)
     from .blueprints import auth, cafes, checkins, friends, reviews, users

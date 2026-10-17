@@ -1,6 +1,6 @@
 """Cafes: search/filter, detail, busyness reports."""
 from flask import Blueprint
-from flask_jwt_extended import jwt_required
+from flask_login import login_required
 
 from ..errors import not_implemented
 
@@ -27,7 +27,7 @@ def get_cafe(cafe_id: int):
 
 
 @bp.post("/cafes/<int:cafe_id>/busyness")
-@jwt_required()
+@login_required
 def report_busyness(cafe_id: int):
     # TODO: validate {level: 1-5}, insert a BusynessReport(time=utcnow(), cafe_id, user_id, level), return 201.
     # IDEA: rate-limit to one report per user per cafe every ~10 minutes (return 429).

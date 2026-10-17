@@ -1,4 +1,5 @@
-import { clearSession, getUser, isLoggedIn } from '../auth.js';
+import { api } from '../api.js';
+import { clearUser, getUser, isLoggedIn } from '../auth.js';
 import { navigate } from '../router.js';
 import { esc } from './ui.js';
 
@@ -25,8 +26,9 @@ export function renderNavbar(el) {
           </div>
         </div>
       </nav>`;
-    el.querySelector('#logout')?.addEventListener('click', () => {
-      clearSession();
+    el.querySelector('#logout')?.addEventListener('click', async () => {
+      await api.logout().catch(() => {}); // clear the server session; ignore if it already expired
+      clearUser();
       navigate('/login');
     });
     highlight();

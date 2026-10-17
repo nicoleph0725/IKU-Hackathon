@@ -1,8 +1,8 @@
-// Thin wrapper around fetch: JSON in/out, attaches the JWT, normalises errors.
+// Thin wrapper around fetch: JSON in/out, sends the session cookie, normalises errors.
 //
 // Every backend error looks like {"error": {"code", "message", "details"}} and is thrown
 // here as an ApiError so views can `try { ... } catch (e) { toast(e.message) }`.
-import { getToken, clearSession } from './auth.js';
+import { clearUser, isLoggedIn } from './auth.js';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
@@ -23,12 +23,15 @@ async function request(method, path, { body, query } = {}) {
 
   const headers = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
-  const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
 
   let res;
   try {
-    res = await fetch(url, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+    res = await fetch(url, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: 'include', // send the session cookie (needed if the API is on another origin)
+    });
   } catch {
     throw new ApiError(0, 'network_error', 'Cannot reach the server. Is the backend running?');
   }
@@ -38,9 +41,9 @@ async function request(method, path, { body, query } = {}) {
 
   if (!res.ok) {
     const err = data?.error ?? {};
-    // Expired/invalid token: drop the session and send the user to login.
-    if (res.status === 401 && token && !path.startsWith('/auth/')) {
-      clearSession();
+    // We thought we were logged in but the server says no (session expired): go to login.
+    if (res.status === 401 && isLoggedIn() && path !== '/auth/login') {
+      clearUser();
       window.location.hash = '#/login';
     }
     throw new ApiError(res.status, err.code ?? 'error', err.message ?? `Request failed (${res.status})`, err.details);
@@ -62,6 +65,7 @@ export const api = {
   // auth
   register: (data) => request('POST', '/auth/register', { body: data }),
   login: (login, password) => request('POST', '/auth/login', { body: { login, password } }),
+  logout: () => request('POST', '/auth/logout'),
   me: () => request('GET', '/auth/me'),
   updateSettings: (settings) => request('PATCH', '/users/me/settings', { body: settings }),
 

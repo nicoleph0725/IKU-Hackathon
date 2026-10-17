@@ -1,5 +1,5 @@
 import { api, formatErrorDetails } from '../api.js';
-import { setSession } from '../auth.js';
+import { setUser } from '../auth.js';
 import { navigate } from '../router.js';
 import { toast } from '../components/toast.js';
 
@@ -34,8 +34,8 @@ export function render(el) {
     const button = form.querySelector('button');
     button.disabled = true;
     try {
-      const { access_token, user } = await api.register(Object.fromEntries(new FormData(form)));
-      setSession(access_token, user);
+      const { user } = await api.register(Object.fromEntries(new FormData(form))); // also logs in
+      setUser(user);
       toast(`Welcome, ${user.username}!`, 'success');
       navigate('/');
     } catch (err) {

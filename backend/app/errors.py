@@ -10,7 +10,7 @@ from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import HTTPException
 
-from .extensions import db, jwt
+from .extensions import db, login_manager
 
 log = logging.getLogger(__name__)
 
@@ -59,18 +59,10 @@ def register_error_handlers(app):
         log.exception("Unhandled error")
         return error_response(500, "internal_error", "Something went wrong")
 
-    # --- JWT errors (missing / invalid / expired token) -> 401 ---------------
-    @jwt.unauthorized_loader
-    def missing_token(reason):
-        return error_response(401, "unauthorized", "Missing or malformed access token")
-
-    @jwt.invalid_token_loader
-    def invalid_token(reason):
-        return error_response(401, "invalid_token", "Invalid access token")
-
-    @jwt.expired_token_loader
-    def expired_token(jwt_header, jwt_payload):
-        return error_response(401, "token_expired", "Access token has expired, please log in again")
+    # @login_required on a request without a valid session -> 401 JSON (instead of a redirect)
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        return error_response(401, "unauthorized", "Please log in")
 
 
 def not_implemented(what: str = "This endpoint"):
