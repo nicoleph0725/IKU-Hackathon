@@ -3,7 +3,7 @@
 A web app to help students find study cafes.
 
 - **backend/**: Flask (Python)
-- **frontend/**: Vite + Tailwind CSS + Leaflet map (vanilla JavaScript)
+- **frontend/**: Vite + Tailwind CSS + Google Maps (vanilla JavaScript)
 
 ## Setup
 
@@ -14,7 +14,7 @@ cd backend
 python3 -m venv .venv            # Windows: python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env             # Windows: copy .env.example .env
+cp .env.example .env             # Windows: copy .env.example .env, then add your MAP_KEY
 flask run                        # http://localhost:5000
 ```
 

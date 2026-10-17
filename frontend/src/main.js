@@ -1,4 +1,3 @@
-import 'leaflet/dist/leaflet.css';
 import './style.css';
 
 import { renderNavbar } from './components/navbar.js';

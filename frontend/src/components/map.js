@@ -1,15 +1,34 @@
-import L from 'leaflet';
+import { importLibrary, setOptions } from '@googlemaps/js-api-loader';
 
-const LONDON = [51.5074, -0.1278];
+const LONDON = { lat: 51.5074, lng: -0.1278 };
 
-export function renderMap(el) {
-  const map = L.map(el, { zoomControl: false }).setView(LONDON, 13);
-  L.control.zoom({ position: 'bottomright' }).addTo(map); // keep zoom buttons clear of the search bar
+function showError(el, message) {
+  el.innerHTML = `<p class="p-6 text-center text-sm text-red-700">${message}</p>`;
+}
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-  }).addTo(map);
+export async function renderMap(el) {
+  const apiKey = import.meta.env.MAP_KEY;
+  if (!apiKey) {
+    showError(el, 'Map unavailable: add MAP_KEY to backend/.env, then restart npm run dev.');
+    return;
+  }
 
-  return map;
+  try {
+    // Load the Google Maps script once, with our key.
+    setOptions({ key: apiKey, v: 'weekly' });
+    const { Map } = await importLibrary('maps');
+    const { ControlPosition } = await importLibrary('core');
+
+    return new Map(el, {
+      center: LONDON,
+      zoom: 13,
+      // Keep the map clean: only zoom buttons, placed away from the search bar.
+      disableDefaultUI: true,
+      zoomControl: true,
+      zoomControlOptions: { position: ControlPosition.RIGHT_BOTTOM },
+    });
+  } catch (err) {
+    console.error(err);
+    showError(el, 'The map failed to load. Open the browser console (F12) for details.');
+  }
 }

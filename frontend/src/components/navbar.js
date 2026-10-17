@@ -1,7 +1,7 @@
 export function renderNavbar(el) {
   el.innerHTML = `
     <nav class="flex items-center justify-between bg-amber-900 px-4 py-3 shadow">
-      <a href="/" class="text-lg font-bold text-white">☕ StudySpot</a>
+      <a href="/" class="text-lg font-bold text-white">☕ BeanTogether</a>
       <div class="flex items-center gap-2">
         <button id="sign-in" class="rounded-lg px-3 py-2 text-sm font-medium text-amber-50 hover:bg-amber-800">
           Sign in
