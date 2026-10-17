@@ -2,9 +2,18 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from db import get_conn
+import os
+import auth
 
 app = Flask(__name__)
+app.secret_key = os.environ["SECRET_KEY"]
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    # SESSION_COOKIE_SECURE=True,  # turn on when deployed over HTTPS
+)
 CORS(app)
+app.register_blueprint(auth.bp)
 
 
 @app.get("/api/health")
