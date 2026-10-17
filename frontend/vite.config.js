@@ -4,10 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [tailwindcss()],
   server: {
-    port: 5173,
-    // Forward /api to Flask so the browser sees a single origin in development.
-    proxy: {
-      '/api': 'http://localhost:5000',
-    },
+    // Requests to /api go to the Flask backend.
+    proxy: { '/api': 'http://localhost:5000' },
   },
 });

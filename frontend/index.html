@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#78350f" />
-    <title>StudySpot – find a study cafe</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+    <title>StudySpot</title>
   </head>
-  <body class="min-h-screen bg-stone-50 text-stone-900 antialiased">
+  <body class="flex h-dvh flex-col bg-stone-50 text-stone-900 antialiased">
     <header id="navbar"></header>
-    <main id="app" class="mx-auto w-full max-w-6xl px-4 pb-24 pt-4"></main>
-    <div id="toasts" class="pointer-events-none fixed inset-x-0 bottom-4 z-[2000] flex flex-col items-center gap-2 px-4"></div>
+    <main class="relative flex-1">
+      <div id="search" class="absolute inset-x-0 top-0 z-[1000] p-3 sm:p-4"></div>
+      <div id="map" class="h-full w-full"></div>
+    </main>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
