@@ -1,4 +1,4 @@
-# ☕ StudySpot
+# BeanTogether
 
 A web app to help students find study cafes.
 
