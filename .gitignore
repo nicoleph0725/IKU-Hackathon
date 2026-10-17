@@ -9,6 +9,7 @@ dist/
 
 # Secrets
 .env
+tiger-cloud-*.txt
 
 # OS / editor
 .DS_Store
