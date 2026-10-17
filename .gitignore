@@ -2,17 +2,13 @@
 .venv/
 __pycache__/
 *.py[cod]
-.pytest_cache/
-*.egg-info/
 
 # Node
 node_modules/
-frontend/dist/
+dist/
 
-# Secrets / env
+# Secrets
 .env
-.env.*
-!.env.example
 
 # OS / editor
 .DS_Store
