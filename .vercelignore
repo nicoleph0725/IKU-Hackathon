@@ -1,0 +1,7 @@
+# Never upload local secrets or build junk to Vercel.
+.env
+**/.env
+**/__pycache__
+**/.venv
+**/node_modules
+frontend/dist
