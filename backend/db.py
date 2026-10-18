@@ -12,4 +12,5 @@ print("Connecting to host:", urlparse(DATABASE_URL).hostname)
 
 
 def get_conn():
-    return psycopg.connect(DATABASE_URL, row_factory=dict_row)
+    # Fail after 10s instead of hanging forever if the database can't be reached.
+    return psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=10)

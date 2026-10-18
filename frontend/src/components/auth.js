@@ -15,6 +15,9 @@ export const api = {
   logout: () => request('/api/auth/logout', { method: 'POST' }),
 };
 
+export const spinner =
+  '<span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" role="status" aria-label="Loading"></span>';
+
 const inputClass =
   'field w-full rounded-xl px-3.5 py-2.5 text-sm';
 
@@ -36,7 +39,7 @@ export function openAuthModal(mode, onSuccess) {
       <p class="error hidden rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-600"></p>
       <div class="flex justify-end gap-2 pt-2">
         <button type="button" class="cancel btn-soft cursor-pointer rounded-xl px-4 py-2 text-xs font-medium">Cancel</button>
-        <button type="submit" class="btn-matcha cursor-pointer rounded-xl px-4 py-2 text-xs font-semibold">
+        <button type="submit" class="btn-matcha flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold disabled:cursor-wait disabled:opacity-80">
           ${isSignup ? 'Sign up' : 'Sign in'}
         </button>
       </div>
@@ -58,7 +61,9 @@ export function openAuthModal(mode, onSuccess) {
     e.preventDefault();
     const body = Object.fromEntries(new FormData(form));
     const submit = form.querySelector('[type=submit]');
+    const label = submit.innerHTML;
     submit.disabled = true;
+    submit.innerHTML = `${spinner}${isSignup ? 'Signing up' : 'Signing in'}`;
     errorEl.classList.add('hidden');
     try {
       const { user } = await (isSignup ? api.signup(body) : api.login(body));
@@ -68,6 +73,7 @@ export function openAuthModal(mode, onSuccess) {
       errorEl.textContent = err.message;
       errorEl.classList.remove('hidden');
       submit.disabled = false;
+      submit.innerHTML = label;
     }
   });
 

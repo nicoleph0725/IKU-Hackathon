@@ -1,5 +1,5 @@
 import logo from '../assets/logo.jpg';
-import { api, openAuthModal } from './auth.js';
+import { api, openAuthModal, spinner } from './auth.js';
 
 export function renderNavbar(el) {
   el.innerHTML = `
@@ -26,12 +26,23 @@ export function renderNavbar(el) {
       <span id="user-name" class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-cream"></span>
       <button id="log-out" class="cursor-pointer rounded-xl px-3 py-1.5 text-sm font-medium text-cream/85 transition hover:bg-white/10 hover:text-cream">Log out</button>`;
     area.querySelector('#user-name').textContent = user.username;
-    area.querySelector('#log-out').onclick = async () => {
-      await api.logout();
-      showLoggedOut();
+    const logOut = area.querySelector('#log-out');
+    logOut.onclick = async () => {
+      logOut.disabled = true;
+      logOut.innerHTML = spinner;
+      try {
+        await api.logout();
+        showLoggedOut();
+      } catch {
+        logOut.disabled = false;
+        logOut.textContent = 'Log out';
+      }
     };
   }
 
-  showLoggedOut();
-  api.me().then(({ user }) => user && showLoggedIn(user)).catch(() => {});
+  // Show a spinner while checking whether the user is already logged in.
+  area.innerHTML = `<span class="text-cream">${spinner}</span>`;
+  api.me()
+    .then(({ user }) => (user ? showLoggedIn(user) : showLoggedOut()))
+    .catch(showLoggedOut);
 }
