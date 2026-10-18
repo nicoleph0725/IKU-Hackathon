@@ -1,5 +1,6 @@
 import logo from '../assets/logo.jpg';
 import { api, openAuthModal, spinner } from './auth.js';
+import { renderInbox } from './inbox.js';
 
 export function renderNavbar(el) {
   el.innerHTML = `
@@ -14,6 +15,8 @@ export function renderNavbar(el) {
   const area = el.querySelector('#auth-area');
 
   function showLoggedOut() {
+    // Remove "Share location" from any cafe popup still open from when we were signed in.
+    document.querySelectorAll('.share-location').forEach((btn) => btn.remove());
     area.innerHTML = `
       <button id="sign-in" class=" cursor-pointer rounded-xl px-3.5 py-1.5 text-sm font-medium text-cream/90 transition hover:bg-white/10 hover:text-cream">Sign in</button>
       <button id="sign-up" class="cursor-pointer rounded-xl bg-matcha-200 px-3.5 py-1.5 text-sm font-semibold text-brand transition hover:bg-matcha-300">Sign up</button>`;
@@ -23,9 +26,11 @@ export function renderNavbar(el) {
 
   function showLoggedIn(user) {
     area.innerHTML = `
+      <div id="inbox"></div>
       <span id="user-name" class="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-cream"></span>
       <button id="log-out" class="cursor-pointer rounded-xl px-3 py-1.5 text-sm font-medium text-cream/85 transition hover:bg-white/10 hover:text-cream">Log out</button>`;
     area.querySelector('#user-name').textContent = user.username;
+    renderInbox(area.querySelector('#inbox'));
     const logOut = area.querySelector('#log-out');
     logOut.onclick = async () => {
       logOut.disabled = true;

@@ -6,6 +6,7 @@ from flask import Flask, jsonify, redirect, request
 from flask_cors import CORS
 
 import auth
+import friends
 from db import get_conn
 from gemini import GEMINI_KEY, PREFERENCE_TEXT, rank_cafes_with_gemini
 from places import MAP_KEY, SEARCH_CENTER, get_photo_uri, public_cafe, search_get_cafes
@@ -22,6 +23,7 @@ app.config.update(
 )
 CORS(app)
 app.register_blueprint(auth.bp)
+app.register_blueprint(friends.bp)
 
 
 #################################

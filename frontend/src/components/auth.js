@@ -1,4 +1,4 @@
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
     ...options,

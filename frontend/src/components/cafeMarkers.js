@@ -1,4 +1,5 @@
 import { importLibrary } from '@googlemaps/js-api-loader';
+import { shareLocationButton } from './inbox.js';
 
 /**
  * Manages the cafe pins on the map.
@@ -109,6 +110,7 @@ function cafeCard(cafe) {
     );
   }
   // TODO: busyness. Google's API doesn't provide it, so it will come from our own data.
+  card.append(shareLocationButton(cafe.name));
 
   return card;
 }
